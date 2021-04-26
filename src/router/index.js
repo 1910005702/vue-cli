@@ -1,27 +1,33 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../page/Home.vue'
-
+import Layout from '@/layout/index.vue'
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 Vue.use(VueRouter)
 
-const routes = [
+export const routes = [
   {
-    path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../page/About.vue')
+    name: '登录',
+    path: '/login',
+    hidden: true,
+    component: resolve => require(['@/views/login/index.vue'], resolve)
   }
 ]
 
-const router = new VueRouter({
+const createRouter = () => new VueRouter({
+  // mode: 'history',
+  scrollBehavior: () => ({ y: 0 }),
   routes
 })
+
+const router = createRouter()
+
+// 重置路由
+export function resetRouter() {
+  const newRouter = createRouter()
+  router.matcher = newRouter.matcher // the relevant part
+}
 
 export default router
